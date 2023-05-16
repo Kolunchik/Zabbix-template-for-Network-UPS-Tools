@@ -265,6 +265,9 @@ return JSON.stringify(a);</parameter>
                             <type>DEPENDENT</type>
                             <key>ups[{#UPS},ups.status]</key>
                             <delay>0</delay>
+                            <valuemap>
+                                <name>UPS status</name>
+                            </valuemap>
                             <preprocessing>
                                 <step>
                                     <type>JSONPATH</type>
@@ -276,8 +279,8 @@ return JSON.stringify(a);</parameter>
                                     <type>JAVASCRIPT</type>
                                     <parameters>
                                         <parameter>var a={
- &quot;OL&quot;: 1, // On line (mains is present
- &quot;OB&quot;: 2, // On battery (mains is not present
+ &quot;OL&quot;: 1, // On line (mains is present)
+ &quot;OB&quot;: 2, // On battery (mains is not present)
  &quot;LB&quot;: 3, // Low battery
  &quot;RB&quot;: 4, // The battery needs to be replaced
  &quot;CHRG&quot;: 5, // The battery is charging
@@ -288,7 +291,6 @@ return JSON.stringify(a);</parameter>
  &quot;OVER&quot;: 10, // UPS is overloaded
  &quot;TRIM&quot;: 11, // UPS is trimming incoming voltage (called &quot;buck&quot; in some hardware)
  &quot;BOOST&quot;: 12, // UPS is boosting incoming voltage
- &quot;OL CHRG&quot;: 13, // On battery (mains is not present) and the battery is charging
 };
 
 return a[value]||0;</parameter>
@@ -410,6 +412,66 @@ return JSON.stringify(a);</parameter>
                     <value>52</value>
                 </macro>
             </macros>
+            <valuemaps>
+                <valuemap>
+                    <uuid>f06f595d80fc44319f05aa20f2e580f8</uuid>
+                    <name>UPS status</name>
+                    <mappings>
+                        <mapping>
+                            <value>1</value>
+                            <newvalue>On line (mains is present)</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>2</value>
+                            <newvalue>On battery (mains is not present)</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>3</value>
+                            <newvalue>Low battery</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>4</value>
+                            <newvalue>The battery needs to be replaced</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>5</value>
+                            <newvalue>The battery is charging</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>6</value>
+                            <newvalue>The battery is discharging (inverter is providing load power)</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>7</value>
+                            <newvalue>UPS bypass circuit is active</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>8</value>
+                            <newvalue>UPS is currently performing runtime calibration (on battery)</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>9</value>
+                            <newvalue>UPS is offline and is not supplying power to the load</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>10</value>
+                            <newvalue>UPS is overloaded</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>11</value>
+                            <newvalue>UPS is trimming incoming voltage</newvalue>
+                        </mapping>
+                        <mapping>
+                            <value>12</value>
+                            <newvalue>UPS is boosting incoming voltage</newvalue>
+                        </mapping>
+                        <mapping>
+                            <type>DEFAULT</type>
+                            <newvalue>Unknown state</newvalue>
+                        </mapping>
+                    </mappings>
+                </valuemap>
+            </valuemaps>
         </template>
     </templates>
 </zabbix_export>
