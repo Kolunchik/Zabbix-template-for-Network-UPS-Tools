@@ -22,6 +22,7 @@
                     <uuid>172e3885aff746ceb24f8766dbcdc0b7</uuid>
                     <name>UPS discovery</name>
                     <key>upscd[{$UPS_HOSTNAME}]</key>
+                    <delay>10m</delay>
                     <item_prototypes>
                         <item_prototype>
                             <uuid>2f6171f65e4148f18f11262f4c561dae</uuid>
@@ -231,7 +232,7 @@ return JSON.stringify(a);</parameter>
                         </item_prototype>
                         <item_prototype>
                             <uuid>1bbe66996d1f4cd6a011b5cd2e042aab</uuid>
-                            <name>UPS {#UPSNAME} ups load</name>
+                            <name>UPS {#UPSNAME} load</name>
                             <type>DEPENDENT</type>
                             <key>ups[{#UPS},ups.load]</key>
                             <delay>0</delay>
@@ -279,8 +280,8 @@ return JSON.stringify(a);</parameter>
                                     <type>JAVASCRIPT</type>
                                     <parameters>
                                         <parameter>var a={
- &quot;OL&quot;: 1, // On line (mains is present)
- &quot;OB&quot;: 2, // On battery (mains is not present)
+ &quot;OL&quot;: 1, // On line
+ &quot;OB&quot;: 2, // On battery
  &quot;LB&quot;: 3, // Low battery
  &quot;RB&quot;: 4, // The battery needs to be replaced
  &quot;CHRG&quot;: 5, // The battery is charging
@@ -289,8 +290,10 @@ return JSON.stringify(a);</parameter>
  &quot;CAL&quot;: 8, // UPS is currently performing runtime calibration (on battery)
  &quot;OFF&quot;: 9, // UPS is offline and is not supplying power to the load
  &quot;OVER&quot;: 10, // UPS is overloaded
- &quot;TRIM&quot;: 11, // UPS is trimming incoming voltage (called &quot;buck&quot; in some hardware)
+ &quot;TRIM&quot;: 11, // UPS is trimming incoming voltage
+ &quot;OL TRIM&quot;: 11, // UPS is trimming incoming voltage
  &quot;BOOST&quot;: 12, // UPS is boosting incoming voltage
+ &quot;OL BOOST&quot;: 12, // UPS is boosting incoming voltage
 };
 
 return a[value]||0;</parameter>
@@ -419,11 +422,11 @@ return JSON.stringify(a);</parameter>
                     <mappings>
                         <mapping>
                             <value>1</value>
-                            <newvalue>On line (mains is present)</newvalue>
+                            <newvalue>On line</newvalue>
                         </mapping>
                         <mapping>
                             <value>2</value>
-                            <newvalue>On battery (mains is not present)</newvalue>
+                            <newvalue>On battery</newvalue>
                         </mapping>
                         <mapping>
                             <value>3</value>
