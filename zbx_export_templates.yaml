@@ -1,0 +1,324 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 0e85f601c04d44aab171b49f61c986a9
+      name: Templates/Custom
+  templates:
+    - uuid: 4326fbfe58574e91b0e572b594609a83
+      template: 'Template App NUT'
+      name: 'Template App NUT'
+      groups:
+        - name: Templates/Custom
+      discovery_rules:
+        - uuid: 172e3885aff746ceb24f8766dbcdc0b7
+          name: 'UPS discovery'
+          key: 'upsc.discovery[{$UPS_HOSTNAME}]'
+          delay: 1h
+          item_prototypes:
+            - uuid: 2f6171f65e4148f18f11262f4c561dae
+              name: 'UPS {#UPSNAME} master item'
+              key: 'upsc.data["{#UPS}","{$UPS_HOSTNAME}"]'
+              history: 1d
+              value_type: TEXT
+              trends: '0'
+              preprocessing:
+                - type: JAVASCRIPT
+                  parameters:
+                    - |
+                      var a={};
+                      
+                      value.split(/\r?\n/).forEach(function(str){
+                        var found = str.match(/^(?:\s*)([^:]+):\s*(.*?)\s*$/);
+                        if (!found) { return };
+                        key=found[1];
+                        value=found[2];
+                        a[key]=value;
+                      });
+                      
+                      return JSON.stringify(a);
+              tags:
+                - tag: component
+                  value: ups
+                - tag: ups
+                  value: '{#UPS}'
+            - uuid: db5949b0814e4231b063e800285fff08
+              name: 'UPS {#UPSNAME} battery charge'
+              type: DEPENDENT
+              key: 'upsc[{#UPS},battery.charge]'
+              delay: '0'
+              value_type: FLOAT
+              trends: 90d
+              units: '%'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["battery.charge"]'
+              master_item:
+                key: 'upsc.data["{#UPS}","{$UPS_HOSTNAME}"]'
+              tags:
+                - tag: component
+                  value: ups
+                - tag: ups
+                  value: '{#UPS}'
+              trigger_prototypes:
+                - uuid: a11417e0e5ee4292b5eba5524172a3b9
+                  expression: 'last(/Template App NUT/upsc[{#UPS},battery.charge])<50'
+                  name: 'UPS {#UPSNAME} Charge < 50%'
+                  priority: DISASTER
+                - uuid: 9492bb064efb4088982c2cf5c536c431
+                  expression: 'last(/Template App NUT/upsc[{#UPS},battery.charge])<80'
+                  name: 'UPS {#UPSNAME} Charge < 80%'
+                  priority: HIGH
+                  dependencies:
+                    - name: 'UPS {#UPSNAME} Charge < 50%'
+                      expression: 'last(/Template App NUT/upsc[{#UPS},battery.charge])<50'
+            - uuid: 0a5f354865b049e98b8dee3cedad55a1
+              name: 'UPS {#UPSNAME} battery voltage'
+              type: DEPENDENT
+              key: 'upsc[{#UPS},battery.voltage]'
+              delay: '0'
+              value_type: FLOAT
+              trends: 90d
+              units: V
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["battery.voltage"]'
+              master_item:
+                key: 'upsc.data["{#UPS}","{$UPS_HOSTNAME}"]'
+              tags:
+                - tag: component
+                  value: ups
+                - tag: ups
+                  value: '{#UPS}'
+            - uuid: 97e29ae9d53848d3a32a1432b9614fe6
+              name: 'UPS {#UPSNAME} input frequency'
+              type: DEPENDENT
+              key: 'upsc[{#UPS},input.frequency]'
+              delay: '0'
+              value_type: FLOAT
+              trends: 90d
+              units: Hz
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["input.frequency"]'
+              master_item:
+                key: 'upsc.data["{#UPS}","{$UPS_HOSTNAME}"]'
+              tags:
+                - tag: component
+                  value: ups
+                - tag: ups
+                  value: '{#UPS}'
+            - uuid: 6a9f4ccdd2e5424d9a144084a69d2630
+              name: 'UPS {#UPSNAME} input voltage'
+              type: DEPENDENT
+              key: 'upsc[{#UPS},input.voltage]'
+              delay: '0'
+              value_type: FLOAT
+              trends: 90d
+              units: V
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["input.voltage"]'
+              master_item:
+                key: 'upsc.data["{#UPS}","{$UPS_HOSTNAME}"]'
+              tags:
+                - tag: component
+                  value: ups
+                - tag: ups
+                  value: '{#UPS}'
+            - uuid: 6ff9444a52174b0b95bbdbf1c145a348
+              name: 'UPS {#UPSNAME} output voltage'
+              type: DEPENDENT
+              key: 'upsc[{#UPS},output.voltage]'
+              delay: '0'
+              value_type: FLOAT
+              trends: 90d
+              units: V
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["output.voltage"]'
+              master_item:
+                key: 'upsc.data["{#UPS}","{$UPS_HOSTNAME}"]'
+              tags:
+                - tag: component
+                  value: ups
+                - tag: ups
+                  value: '{#UPS}'
+            - uuid: 1bbe66996d1f4cd6a011b5cd2e042aab
+              name: 'UPS {#UPSNAME} load'
+              type: DEPENDENT
+              key: 'upsc[{#UPS},ups.load]'
+              delay: '0'
+              value_type: FLOAT
+              trends: 90d
+              units: '%'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["ups.load"]'
+              master_item:
+                key: 'upsc.data["{#UPS}","{$UPS_HOSTNAME}"]'
+              tags:
+                - tag: component
+                  value: ups
+                - tag: ups
+                  value: '{#UPS}'
+            - uuid: cf9cdcf2e3ec4e7dac1af4608ae75261
+              name: 'UPS {#UPSNAME} status'
+              type: DEPENDENT
+              key: 'upsc[{#UPS},ups.status]'
+              delay: '0'
+              trends: 90d
+              valuemap:
+                name: 'UPS status'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["ups.status"]'
+                - type: JAVASCRIPT
+                  parameters:
+                    - |
+                      var a={
+                       "OL": 1, // On line
+                       "OB": 2, // On battery
+                       "LB": 3, // Low battery
+                       "RB": 4, // The battery needs to be replaced
+                       "CHRG": 5, // The battery is charging
+                       "DISCHRG": 6, // The battery is discharging (inverter is providing load power)
+                       "BYPASS": 7, // UPS bypass circuit is active echo no battery protection is available
+                       "CAL": 8, // UPS is currently performing runtime calibration (on battery)
+                       "OFF": 9, // UPS is offline and is not supplying power to the load
+                       "OVER": 10, // UPS is overloaded
+                       "TRIM": 11, // UPS is trimming incoming voltage
+                       "OL TRIM": 11, // UPS is trimming incoming voltage
+                       "BOOST": 12, // UPS is boosting incoming voltage
+                       "OL BOOST": 12, // UPS is boosting incoming voltage
+                      };
+                      
+                      return a[value]||0;
+              master_item:
+                key: 'upsc.data["{#UPS}","{$UPS_HOSTNAME}"]'
+              tags:
+                - tag: component
+                  value: ups
+                - tag: ups
+                  value: '{#UPS}'
+              trigger_prototypes:
+                - uuid: 3030b8e1d38b4c86a841a2bc49986165
+                  expression: 'last(/Template App NUT/upsc[{#UPS},ups.status])=5'
+                  name: 'UPS {#UPSNAME} Battery is charging'
+                  priority: INFO
+                - uuid: 4fcd64152b374216b3233406099906bb
+                  expression: 'last(/Template App NUT/upsc[{#UPS},ups.status])=3'
+                  name: 'UPS {#UPSNAME} Low battery'
+                  priority: DISASTER
+                - uuid: 5b550293230a41c18952e8074e9a9526
+                  expression: 'last(/Template App NUT/upsc[{#UPS},ups.status])=2'
+                  name: 'UPS {#UPSNAME} On battery'
+                  priority: HIGH
+                - uuid: f4a178dab05e45d59673fc189247b7ec
+                  expression: 'last(/Template App NUT/upsc[{#UPS},ups.status])=0'
+                  name: 'UPS {#UPSNAME} Unknown state'
+                  priority: DISASTER
+            - uuid: f95583ca1d194c648080232a5ded8057
+              name: 'UPS {#UPSNAME} temperature'
+              type: DEPENDENT
+              key: 'upsc[{#UPS},ups.temperature]'
+              delay: '0'
+              value_type: FLOAT
+              trends: 90d
+              units: °C
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.["ups.temperature"]'
+              master_item:
+                key: 'upsc.data["{#UPS}","{$UPS_HOSTNAME}"]'
+              tags:
+                - tag: component
+                  value: ups
+                - tag: ups
+                  value: '{#UPS}'
+              trigger_prototypes:
+                - uuid: 465c7c06b59b4bfe982bc3a7b1fb7598
+                  expression: 'avg(/Template App NUT/upsc[{#UPS},ups.temperature],5m)>{$UPS_TEMP_MAX}'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'avg(/Template App NUT/upsc[{#UPS},ups.temperature],5m)<{$UPS_TEMP_MAX_OK}'
+                  name: 'UPS {#UPSNAME} High temperature'
+                  priority: HIGH
+          graph_prototypes:
+            - uuid: f87a2af10426419da816505efdd17ceb
+              name: 'UPS {#UPSNAME} main voltage'
+              graph_items:
+                - color: 199C0D
+                  calc_fnc: ALL
+                  item:
+                    host: 'Template App NUT'
+                    key: 'upsc[{#UPS},input.voltage]'
+                - sortorder: '1'
+                  color: F63100
+                  calc_fnc: ALL
+                  item:
+                    host: 'Template App NUT'
+                    key: 'upsc[{#UPS},battery.voltage]'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var a=[];
+                  
+                  value.split(/\r?\n/).forEach(function(str){
+                    var found = str.match(/^(?:\s*)([^:]+):\s*(.*?)\s*$/);
+                    if (!found) { return };
+                    key=found[1];
+                    value=found[2];
+                    a.push({"{#UPS}": key, "{#UPSNAME}": value});
+                  });
+                  
+                  return JSON.stringify(a);
+      tags:
+        - tag: class
+          value: hardware
+        - tag: target
+          value: ups
+      macros:
+        - macro: '{$UPS_HOSTNAME}'
+          value: '127.0.0.1:3493'
+        - macro: '{$UPS_TEMP_MAX}'
+          value: '56'
+        - macro: '{$UPS_TEMP_MAX_OK}'
+          value: '52'
+      valuemaps:
+        - uuid: f06f595d80fc44319f05aa20f2e580f8
+          name: 'UPS status'
+          mappings:
+            - value: '1'
+              newvalue: 'On line'
+            - value: '2'
+              newvalue: 'On battery'
+            - value: '3'
+              newvalue: 'Low battery'
+            - value: '4'
+              newvalue: 'The battery needs to be replaced'
+            - value: '5'
+              newvalue: 'The battery is charging'
+            - value: '6'
+              newvalue: 'The battery is discharging (inverter is providing load power)'
+            - value: '7'
+              newvalue: 'UPS bypass circuit is active'
+            - value: '8'
+              newvalue: 'UPS is currently performing runtime calibration (on battery)'
+            - value: '9'
+              newvalue: 'UPS is offline and is not supplying power to the load'
+            - value: '10'
+              newvalue: 'UPS is overloaded'
+            - value: '11'
+              newvalue: 'UPS is trimming incoming voltage'
+            - value: '12'
+              newvalue: 'UPS is boosting incoming voltage'
+            - type: DEFAULT
+              newvalue: 'Unknown state'
