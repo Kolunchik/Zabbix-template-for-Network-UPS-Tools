@@ -288,10 +288,13 @@ zabbix_export:
       macros:
         - macro: '{$UPS_HOSTNAME}'
           value: '127.0.0.1:3493'
+          description: 'Host:port of upsd to connect'
         - macro: '{$UPS_TEMP_MAX}'
           value: '56'
+          description: 'Maximum temperature'
         - macro: '{$UPS_TEMP_MAX_OK}'
           value: '52'
+          description: 'Normal temperature'
       valuemaps:
         - uuid: f06f595d80fc44319f05aa20f2e580f8
           name: 'UPS status'
