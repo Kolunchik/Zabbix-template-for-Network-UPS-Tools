@@ -44,7 +44,7 @@ zabbix_export:
             - uuid: db5949b0814e4231b063e800285fff08
               name: 'UPS {#UPSNAME} battery charge'
               type: DEPENDENT
-              key: 'upsc[{#UPS},battery.charge]'
+              key: 'upsc["{#UPS}",battery.charge]'
               delay: '0'
               value_type: FLOAT
               trends: 90d
@@ -62,20 +62,20 @@ zabbix_export:
                   value: '{#UPS}'
               trigger_prototypes:
                 - uuid: a11417e0e5ee4292b5eba5524172a3b9
-                  expression: 'last(/Template App NUT/upsc[{#UPS},battery.charge])<50'
+                  expression: 'last(/Template App NUT/upsc["{#UPS}",battery.charge])<50'
                   name: 'UPS {#UPSNAME} Charge < 50%'
                   priority: DISASTER
                 - uuid: 9492bb064efb4088982c2cf5c536c431
-                  expression: 'last(/Template App NUT/upsc[{#UPS},battery.charge])<80'
+                  expression: 'last(/Template App NUT/upsc["{#UPS}",battery.charge])<80'
                   name: 'UPS {#UPSNAME} Charge < 80%'
                   priority: HIGH
                   dependencies:
                     - name: 'UPS {#UPSNAME} Charge < 50%'
-                      expression: 'last(/Template App NUT/upsc[{#UPS},battery.charge])<50'
+                      expression: 'last(/Template App NUT/upsc["{#UPS}",battery.charge])<50'
             - uuid: 0a5f354865b049e98b8dee3cedad55a1
               name: 'UPS {#UPSNAME} battery voltage'
               type: DEPENDENT
-              key: 'upsc[{#UPS},battery.voltage]'
+              key: 'upsc["{#UPS}",battery.voltage]'
               delay: '0'
               value_type: FLOAT
               trends: 90d
@@ -94,7 +94,7 @@ zabbix_export:
             - uuid: 97e29ae9d53848d3a32a1432b9614fe6
               name: 'UPS {#UPSNAME} input frequency'
               type: DEPENDENT
-              key: 'upsc[{#UPS},input.frequency]'
+              key: 'upsc["{#UPS}",input.frequency]'
               delay: '0'
               value_type: FLOAT
               trends: 90d
@@ -113,7 +113,7 @@ zabbix_export:
             - uuid: 6a9f4ccdd2e5424d9a144084a69d2630
               name: 'UPS {#UPSNAME} input voltage'
               type: DEPENDENT
-              key: 'upsc[{#UPS},input.voltage]'
+              key: 'upsc["{#UPS}",input.voltage]'
               delay: '0'
               value_type: FLOAT
               trends: 90d
@@ -132,7 +132,7 @@ zabbix_export:
             - uuid: 6ff9444a52174b0b95bbdbf1c145a348
               name: 'UPS {#UPSNAME} output voltage'
               type: DEPENDENT
-              key: 'upsc[{#UPS},output.voltage]'
+              key: 'upsc["{#UPS}",output.voltage]'
               delay: '0'
               value_type: FLOAT
               trends: 90d
@@ -151,7 +151,7 @@ zabbix_export:
             - uuid: 1bbe66996d1f4cd6a011b5cd2e042aab
               name: 'UPS {#UPSNAME} load'
               type: DEPENDENT
-              key: 'upsc[{#UPS},ups.load]'
+              key: 'upsc["{#UPS}",ups.load]'
               delay: '0'
               value_type: FLOAT
               trends: 90d
@@ -170,7 +170,7 @@ zabbix_export:
             - uuid: cf9cdcf2e3ec4e7dac1af4608ae75261
               name: 'UPS {#UPSNAME} status'
               type: DEPENDENT
-              key: 'upsc[{#UPS},ups.status]'
+              key: 'upsc["{#UPS}",ups.status]'
               delay: '0'
               trends: 90d
               valuemap:
@@ -209,25 +209,25 @@ zabbix_export:
                   value: '{#UPS}'
               trigger_prototypes:
                 - uuid: 3030b8e1d38b4c86a841a2bc49986165
-                  expression: 'last(/Template App NUT/upsc[{#UPS},ups.status])=5'
+                  expression: 'last(/Template App NUT/upsc["{#UPS}",ups.status])=5'
                   name: 'UPS {#UPSNAME} Battery is charging'
                   priority: INFO
                 - uuid: 4fcd64152b374216b3233406099906bb
-                  expression: 'last(/Template App NUT/upsc[{#UPS},ups.status])=3'
+                  expression: 'last(/Template App NUT/upsc["{#UPS}",ups.status])=3'
                   name: 'UPS {#UPSNAME} Low battery'
                   priority: DISASTER
                 - uuid: 5b550293230a41c18952e8074e9a9526
-                  expression: 'last(/Template App NUT/upsc[{#UPS},ups.status])=2'
+                  expression: 'last(/Template App NUT/upsc["{#UPS}",ups.status])=2'
                   name: 'UPS {#UPSNAME} On battery'
                   priority: HIGH
                 - uuid: f4a178dab05e45d59673fc189247b7ec
-                  expression: 'last(/Template App NUT/upsc[{#UPS},ups.status])=0'
+                  expression: 'last(/Template App NUT/upsc["{#UPS}",ups.status])=0'
                   name: 'UPS {#UPSNAME} Unknown state'
                   priority: DISASTER
             - uuid: f95583ca1d194c648080232a5ded8057
               name: 'UPS {#UPSNAME} temperature'
               type: DEPENDENT
-              key: 'upsc[{#UPS},ups.temperature]'
+              key: 'upsc["{#UPS}",ups.temperature]'
               delay: '0'
               value_type: FLOAT
               trends: 90d
@@ -245,9 +245,9 @@ zabbix_export:
                   value: '{#UPS}'
               trigger_prototypes:
                 - uuid: 465c7c06b59b4bfe982bc3a7b1fb7598
-                  expression: 'avg(/Template App NUT/upsc[{#UPS},ups.temperature],5m)>{$UPS_TEMP_MAX}'
+                  expression: 'avg(/Template App NUT/upsc["{#UPS}",ups.temperature],5m)>{$UPS_TEMP_MAX}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template App NUT/upsc[{#UPS},ups.temperature],5m)<{$UPS_TEMP_MAX_OK}'
+                  recovery_expression: 'avg(/Template App NUT/upsc["{#UPS}",ups.temperature],5m)<{$UPS_TEMP_MAX_OK}'
                   name: 'UPS {#UPSNAME} High temperature'
                   priority: HIGH
           graph_prototypes:
@@ -258,13 +258,13 @@ zabbix_export:
                   calc_fnc: ALL
                   item:
                     host: 'Template App NUT'
-                    key: 'upsc[{#UPS},input.voltage]'
+                    key: 'upsc["{#UPS}",input.voltage]'
                 - sortorder: '1'
                   color: F63100
                   calc_fnc: ALL
                   item:
                     host: 'Template App NUT'
-                    key: 'upsc[{#UPS},battery.voltage]'
+                    key: 'upsc["{#UPS}",battery.voltage]'
           preprocessing:
             - type: JAVASCRIPT
               parameters:
