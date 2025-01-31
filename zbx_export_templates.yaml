@@ -1,5 +1,5 @@
 zabbix_export:
-  version: '7.0'
+  version: '7.2'
   template_groups:
     - uuid: 0e85f601c04d44aab171b49f61c986a9
       name: Templates/Custom
@@ -20,7 +20,6 @@ zabbix_export:
               key: 'upsc.data["{#UPS}","{$UPS_HOSTNAME}"]'
               history: 1d
               value_type: TEXT
-              trends: '0'
               preprocessing:
                 - type: JAVASCRIPT
                   parameters:
@@ -45,9 +44,9 @@ zabbix_export:
               name: 'UPS {#UPSNAME} battery charge'
               type: DEPENDENT
               key: 'upsc["{#UPS}",battery.charge]'
-              delay: '0'
+              history: 14d
               value_type: FLOAT
-              trends: 90d
+              trends: 30d
               units: '%'
               preprocessing:
                 - type: JSONPATH
@@ -76,9 +75,9 @@ zabbix_export:
               name: 'UPS {#UPSNAME} battery voltage'
               type: DEPENDENT
               key: 'upsc["{#UPS}",battery.voltage]'
-              delay: '0'
+              history: 14d
               value_type: FLOAT
-              trends: 90d
+              trends: 30d
               units: V
               preprocessing:
                 - type: JSONPATH
@@ -95,9 +94,9 @@ zabbix_export:
               name: 'UPS {#UPSNAME} input frequency'
               type: DEPENDENT
               key: 'upsc["{#UPS}",input.frequency]'
-              delay: '0'
+              history: 14d
               value_type: FLOAT
-              trends: 90d
+              trends: 30d
               units: Hz
               preprocessing:
                 - type: JSONPATH
@@ -114,7 +113,7 @@ zabbix_export:
               name: 'UPS {#UPSNAME} input voltage'
               type: DEPENDENT
               key: 'upsc["{#UPS}",input.voltage]'
-              delay: '0'
+              history: 14d
               value_type: FLOAT
               trends: 90d
               units: V
@@ -133,9 +132,9 @@ zabbix_export:
               name: 'UPS {#UPSNAME} output voltage'
               type: DEPENDENT
               key: 'upsc["{#UPS}",output.voltage]'
-              delay: '0'
+              history: 14d
               value_type: FLOAT
-              trends: 90d
+              trends: 30d
               units: V
               preprocessing:
                 - type: JSONPATH
@@ -152,9 +151,9 @@ zabbix_export:
               name: 'UPS {#UPSNAME} load'
               type: DEPENDENT
               key: 'upsc["{#UPS}",ups.load]'
-              delay: '0'
+              history: 14d
               value_type: FLOAT
-              trends: 90d
+              trends: 30d
               units: '%'
               preprocessing:
                 - type: JSONPATH
@@ -167,12 +166,17 @@ zabbix_export:
                   value: ups
                 - tag: ups
                   value: '{#UPS}'
+              trigger_prototypes:
+                - uuid: 07b0acef440840c1b2649971dfd895e4
+                  expression: 'last(/Template App NUT/upsc["{#UPS}",ups.load])>{$UPS_MAX_LOAD}'
+                  name: 'UPS {#UPSNAME} is overload!'
+                  priority: HIGH
             - uuid: cf9cdcf2e3ec4e7dac1af4608ae75261
               name: 'UPS {#UPSNAME} status'
               type: DEPENDENT
               key: 'upsc["{#UPS}",ups.status]'
-              delay: '0'
-              trends: 90d
+              history: 14d
+              trends: 30d
               valuemap:
                 name: 'UPS status'
               preprocessing:
@@ -228,9 +232,9 @@ zabbix_export:
               name: 'UPS {#UPSNAME} temperature'
               type: DEPENDENT
               key: 'upsc["{#UPS}",ups.temperature]'
-              delay: '0'
+              history: 14d
               value_type: FLOAT
-              trends: 90d
+              trends: 30d
               units: °C
               preprocessing:
                 - type: JSONPATH
@@ -289,6 +293,9 @@ zabbix_export:
         - macro: '{$UPS_HOSTNAME}'
           value: '127.0.0.1:3493'
           description: 'Host:port of upsd to connect'
+        - macro: '{$UPS_MAX_LOAD}'
+          value: '60'
+          description: 'Max load of ups, in percent'
         - macro: '{$UPS_TEMP_MAX}'
           value: '56'
           description: 'Maximum temperature'
