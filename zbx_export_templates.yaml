@@ -13,7 +13,8 @@ zabbix_export:
         - uuid: 172e3885aff746ceb24f8766dbcdc0b7
           name: 'UPS discovery'
           key: 'upsc.discovery[{$UPS_HOSTNAME}]'
-          delay: 1h
+          delay: 10m
+          lifetime_type: DELETE_IMMEDIATELY
           item_prototypes:
             - uuid: 2f6171f65e4148f18f11262f4c561dae
               name: 'UPS {#UPSNAME} master item'
@@ -46,7 +47,7 @@ zabbix_export:
               key: 'upsc["{#UPS}",battery.charge]'
               history: 14d
               value_type: FLOAT
-              trends: 30d
+              trends: '0'
               units: '%'
               preprocessing:
                 - type: JSONPATH
@@ -77,7 +78,7 @@ zabbix_export:
               key: 'upsc["{#UPS}",battery.voltage]'
               history: 14d
               value_type: FLOAT
-              trends: 30d
+              trends: '0'
               units: V
               preprocessing:
                 - type: JSONPATH
@@ -96,7 +97,7 @@ zabbix_export:
               key: 'upsc["{#UPS}",input.frequency]'
               history: 14d
               value_type: FLOAT
-              trends: 30d
+              trends: '0'
               units: Hz
               preprocessing:
                 - type: JSONPATH
@@ -115,7 +116,7 @@ zabbix_export:
               key: 'upsc["{#UPS}",input.voltage]'
               history: 14d
               value_type: FLOAT
-              trends: 90d
+              trends: '0'
               units: V
               preprocessing:
                 - type: JSONPATH
@@ -134,7 +135,7 @@ zabbix_export:
               key: 'upsc["{#UPS}",output.voltage]'
               history: 14d
               value_type: FLOAT
-              trends: 30d
+              trends: '0'
               units: V
               preprocessing:
                 - type: JSONPATH
@@ -153,7 +154,7 @@ zabbix_export:
               key: 'upsc["{#UPS}",ups.load]'
               history: 14d
               value_type: FLOAT
-              trends: 30d
+              trends: '0'
               units: '%'
               preprocessing:
                 - type: JSONPATH
@@ -167,43 +168,20 @@ zabbix_export:
                 - tag: ups
                   value: '{#UPS}'
               trigger_prototypes:
-                - uuid: 07b0acef440840c1b2649971dfd895e4
-                  expression: 'last(/Template App NUT/upsc["{#UPS}",ups.load])>{$UPS_MAX_LOAD}'
-                  name: 'UPS {#UPSNAME} is overload!'
+                - uuid: 06d96df072d541388869684998922590
+                  expression: 'last(/Template App NUT/upsc["{#UPS}",ups.load])>{$UPS_MAX_LOAD:"{#UPS}"}'
+                  name: 'UPS {#UPSNAME} Overload'
                   priority: HIGH
             - uuid: cf9cdcf2e3ec4e7dac1af4608ae75261
               name: 'UPS {#UPSNAME} status'
               type: DEPENDENT
               key: 'upsc["{#UPS}",ups.status]'
               history: 14d
-              trends: 30d
-              valuemap:
-                name: 'UPS status'
+              value_type: TEXT
               preprocessing:
                 - type: JSONPATH
                   parameters:
                     - '$.["ups.status"]'
-                - type: JAVASCRIPT
-                  parameters:
-                    - |
-                      var a={
-                       "OL": 1, // On line
-                       "OB": 2, // On battery
-                       "LB": 3, // Low battery
-                       "RB": 4, // The battery needs to be replaced
-                       "CHRG": 5, // The battery is charging
-                       "DISCHRG": 6, // The battery is discharging (inverter is providing load power)
-                       "BYPASS": 7, // UPS bypass circuit is active echo no battery protection is available
-                       "CAL": 8, // UPS is currently performing runtime calibration (on battery)
-                       "OFF": 9, // UPS is offline and is not supplying power to the load
-                       "OVER": 10, // UPS is overloaded
-                       "TRIM": 11, // UPS is trimming incoming voltage
-                       "OL TRIM": 11, // UPS is trimming incoming voltage
-                       "BOOST": 12, // UPS is boosting incoming voltage
-                       "OL BOOST": 12, // UPS is boosting incoming voltage
-                      };
-                      
-                      return a[value]||0;
               master_item:
                 key: 'upsc.data["{#UPS}","{$UPS_HOSTNAME}"]'
               tags:
@@ -213,28 +191,30 @@ zabbix_export:
                   value: '{#UPS}'
               trigger_prototypes:
                 - uuid: 3030b8e1d38b4c86a841a2bc49986165
-                  expression: 'last(/Template App NUT/upsc["{#UPS}",ups.status])=5'
+                  expression: 'find(/Template App NUT/upsc["{#UPS}",ups.status],,"iregexp","\\bCHRG\\b")=1'
                   name: 'UPS {#UPSNAME} Battery is charging'
                   priority: INFO
                 - uuid: 4fcd64152b374216b3233406099906bb
-                  expression: 'last(/Template App NUT/upsc["{#UPS}",ups.status])=3'
+                  expression: 'find(/Template App NUT/upsc["{#UPS}",ups.status],,"iregexp","\\bLB\\b")=1'
                   name: 'UPS {#UPSNAME} Low battery'
                   priority: DISASTER
+                - uuid: 17ae5b88ba81452db82da0d6f6289fec
+                  expression: |
+                    find(/Template App NUT/upsc["{#UPS}",ups.status],,"iregexp","\\bOL\\b")=0 and 	
+                    find(/Template App NUT/upsc["{#UPS}",ups.status],,"iregexp","\\bLB\\b")=0
+                  name: 'UPS {#UPSNAME} Mystery status'
+                  priority: HIGH
                 - uuid: 5b550293230a41c18952e8074e9a9526
-                  expression: 'last(/Template App NUT/upsc["{#UPS}",ups.status])=2'
+                  expression: 'find(/Template App NUT/upsc["{#UPS}",ups.status],,"iregexp","\\bOL\\b")=0'
                   name: 'UPS {#UPSNAME} On battery'
                   priority: HIGH
-                - uuid: f4a178dab05e45d59673fc189247b7ec
-                  expression: 'last(/Template App NUT/upsc["{#UPS}",ups.status])=0'
-                  name: 'UPS {#UPSNAME} Unknown state'
-                  priority: DISASTER
             - uuid: f95583ca1d194c648080232a5ded8057
               name: 'UPS {#UPSNAME} temperature'
               type: DEPENDENT
               key: 'upsc["{#UPS}",ups.temperature]'
               history: 14d
               value_type: FLOAT
-              trends: 30d
+              trends: '0'
               units: °C
               preprocessing:
                 - type: JSONPATH
@@ -249,26 +229,11 @@ zabbix_export:
                   value: '{#UPS}'
               trigger_prototypes:
                 - uuid: 465c7c06b59b4bfe982bc3a7b1fb7598
-                  expression: 'avg(/Template App NUT/upsc["{#UPS}",ups.temperature],5m)>{$UPS_TEMP_MAX}'
+                  expression: 'avg(/Template App NUT/upsc["{#UPS}",ups.temperature],5m)>{$UPS_TEMP_MAX:"{#UPS}"}'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'avg(/Template App NUT/upsc["{#UPS}",ups.temperature],5m)<{$UPS_TEMP_MAX_OK}'
+                  recovery_expression: 'avg(/Template App NUT/upsc["{#UPS}",ups.temperature],5m)<{$UPS_TEMP_MAX_OK:"{#UPS}"}'
                   name: 'UPS {#UPSNAME} High temperature'
                   priority: HIGH
-          graph_prototypes:
-            - uuid: f87a2af10426419da816505efdd17ceb
-              name: 'UPS {#UPSNAME} main voltage'
-              graph_items:
-                - color: 199C0D
-                  calc_fnc: ALL
-                  item:
-                    host: 'Template App NUT'
-                    key: 'upsc["{#UPS}",input.voltage]'
-                - sortorder: '1'
-                  color: F63100
-                  calc_fnc: ALL
-                  item:
-                    host: 'Template App NUT'
-                    key: 'upsc["{#UPS}",battery.voltage]'
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -284,11 +249,6 @@ zabbix_export:
                   });
                   
                   return JSON.stringify(a);
-      tags:
-        - tag: class
-          value: hardware
-        - tag: target
-          value: ups
       macros:
         - macro: '{$UPS_HOSTNAME}'
           value: '127.0.0.1:3493'
