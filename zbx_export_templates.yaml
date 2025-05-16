@@ -200,7 +200,7 @@ zabbix_export:
                   priority: DISASTER
                 - uuid: 17ae5b88ba81452db82da0d6f6289fec
                   expression: |
-                    find(/Template App NUT/upsc["{#UPS}",ups.status],,"iregexp","\\bOL\\b")=0 and 	
+                    find(/Template App NUT/upsc["{#UPS}",ups.status],,"iregexp","\\bOL\\b")=0 and find(/Template App NUT/upsc["{#UPS}",ups.status],,"iregexp","\\bOB\\b")=0 and 	
                     find(/Template App NUT/upsc["{#UPS}",ups.status],,"iregexp","\\bLB\\b")=0
                   name: 'UPS {#UPSNAME} Mystery status'
                   priority: HIGH
@@ -262,33 +262,3 @@ zabbix_export:
         - macro: '{$UPS_TEMP_MAX_OK}'
           value: '52'
           description: 'Normal temperature'
-      valuemaps:
-        - uuid: f06f595d80fc44319f05aa20f2e580f8
-          name: 'UPS status'
-          mappings:
-            - value: '1'
-              newvalue: 'On line'
-            - value: '2'
-              newvalue: 'On battery'
-            - value: '3'
-              newvalue: 'Low battery'
-            - value: '4'
-              newvalue: 'The battery needs to be replaced'
-            - value: '5'
-              newvalue: 'The battery is charging'
-            - value: '6'
-              newvalue: 'The battery is discharging (inverter is providing load power)'
-            - value: '7'
-              newvalue: 'UPS bypass circuit is active'
-            - value: '8'
-              newvalue: 'UPS is currently performing runtime calibration (on battery)'
-            - value: '9'
-              newvalue: 'UPS is offline and is not supplying power to the load'
-            - value: '10'
-              newvalue: 'UPS is overloaded'
-            - value: '11'
-              newvalue: 'UPS is trimming incoming voltage'
-            - value: '12'
-              newvalue: 'UPS is boosting incoming voltage'
-            - type: DEFAULT
-              newvalue: 'Unknown state'
